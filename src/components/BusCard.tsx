@@ -47,7 +47,7 @@ export const BusCard: React.FC<BusCardProps> = ({
       : '/assets/illustrations/buses/bus-side.svg';
 
   return (
-    <div className="bus-card-wrapper">
+    <div className="bus-card-wrapper" id={`bus-card-${bus.id}`}>
       {/* Top Header */}
       <div className="bus-card-top">
         <div>

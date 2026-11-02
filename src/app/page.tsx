@@ -82,6 +82,14 @@ export default function HomePage() {
   // Journey Stepper State
   const [currentStep, setCurrentStep] = useState<number>(2);
 
+  // Results Section Ref for smooth auto-scroll to animations
+  const resultsSectionRef = useRef<HTMLElement>(null);
+  const scrollToResults = () => {
+    setTimeout(() => {
+      resultsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
   // Toast Notifications
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
@@ -166,7 +174,7 @@ export default function HomePage() {
     };
   }, []);
 
-  // Fetch buses API
+  // Fetch buses API with 3-second delay for viewing animations
   const fetchBuses = useCallback(
     async (
       from = fromQuery,
@@ -188,7 +196,12 @@ export default function HomePage() {
         if (price < 2500) params.set('maxPrice', String(price));
         if (sort) params.set('sortBy', sort);
 
-        const res = await fetch(`/api/buses?${params.toString()}`);
+        // 3-second delay so that the animated bus driving & route scan animations are visible
+        const delayPromise = new Promise((resolve) => setTimeout(resolve, 3000));
+        const [res] = await Promise.all([
+          fetch(`/api/buses?${params.toString()}`),
+          delayPromise,
+        ]);
         const data = await res.json();
         if (data.status === 'success') {
           setBuses(data.buses);
@@ -242,6 +255,7 @@ export default function HomePage() {
     }
 
     fetchBuses(from, to, date, selectedTypes, selectedAmenities, maxPrice, sortBy);
+    scrollToResults();
   };
 
   // Filter handlers
@@ -251,6 +265,7 @@ export default function HomePage() {
       : [...selectedTypes, type];
     setSelectedTypes(updated);
     fetchBuses(fromQuery, toQuery, journeyDate, updated, selectedAmenities, maxPrice, sortBy);
+    scrollToResults();
   };
 
   const handleAmenityToggle = (amenity: string) => {
@@ -259,11 +274,13 @@ export default function HomePage() {
       : [...selectedAmenities, amenity];
     setSelectedAmenities(updated);
     fetchBuses(fromQuery, toQuery, journeyDate, selectedTypes, updated, maxPrice, sortBy);
+    scrollToResults();
   };
 
   const handlePriceChange = (val: number) => {
     setMaxPrice(val);
     fetchBuses(fromQuery, toQuery, journeyDate, selectedTypes, selectedAmenities, val, sortBy);
+    scrollToResults();
   };
 
   const handleResetFilters = () => {
@@ -273,6 +290,7 @@ export default function HomePage() {
     setSortBy('featured');
     fetchBuses(fromQuery, toQuery, journeyDate, [], [], 2500, 'featured');
     showNotification('Filters cleared.', 'info');
+    scrollToResults();
   };
 
   // Favorites toggle
@@ -328,7 +346,7 @@ export default function HomePage() {
     setIsBookingModalOpen(true);
   };
 
-  // Booking Flow: Confirm & Call POST /api/bookings
+  // Booking Flow: Confirm & Call POST /api/bookings with 3-second delay for viewing reservation animation
   const handleConfirmReservation = async (passengerData: {
     name: string;
     age: number;
@@ -338,23 +356,28 @@ export default function HomePage() {
     if (!bookingBus || !bookingSeat || !currentUser) return;
 
     try {
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          busId: bookingBus.id,
-          seatNumber: bookingSeat,
-          username: currentUser,
-          passengerName: passengerData.name,
-          passengerAge: passengerData.age,
-          passengerGender: passengerData.gender,
-          passengerPhone: passengerData.phone,
-          boardingPoint: selectedBoardingPoint,
-          droppingPoint: selectedDroppingPoint,
-          journeyDate,
-          promoCode: appliedPromo?.code,
+      // Explicit 3-second delay so that the reserving animation is displayed to user
+      const delayPromise = new Promise((resolve) => setTimeout(resolve, 3000));
+      const [res] = await Promise.all([
+        fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            busId: bookingBus.id,
+            seatNumber: bookingSeat,
+            username: currentUser,
+            passengerName: passengerData.name,
+            passengerAge: passengerData.age,
+            passengerGender: passengerData.gender,
+            passengerPhone: passengerData.phone,
+            boardingPoint: selectedBoardingPoint,
+            droppingPoint: selectedDroppingPoint,
+            journeyDate,
+            promoCode: appliedPromo?.code,
+          }),
         }),
-      });
+        delayPromise,
+      ]);
 
       const data = await res.json();
 
@@ -370,6 +393,9 @@ export default function HomePage() {
         setCurrentStep(5);
         setIsSuccessModalOpen(true);
         fetchBuses();
+
+        // Smoothly scroll to top so user sees the success confirmation animation
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         showNotification(data.message || 'Failed to complete reservation.', 'error');
       }
@@ -378,16 +404,21 @@ export default function HomePage() {
     }
   };
 
-  // Cancel Booking
+  // Cancel Booking with 3-second delay for viewing cancellation status animation
   const handleCancelBooking = async (bookingId: string) => {
     if (!confirm('Are you sure you want to cancel this ticket? The seat will be released.')) {
       return;
     }
 
     try {
-      const res = await fetch(`/api/bookings?bookingId=${encodeURIComponent(bookingId)}`, {
-        method: 'DELETE',
-      });
+      // 3-second delay so the seat-release animation is clearly seen
+      const delayPromise = new Promise((resolve) => setTimeout(resolve, 3000));
+      const [res] = await Promise.all([
+        fetch(`/api/bookings?bookingId=${encodeURIComponent(bookingId)}`, {
+          method: 'DELETE',
+        }),
+        delayPromise,
+      ]);
       const data = await res.json();
 
       if (data.status === 'success') {
@@ -449,7 +480,7 @@ export default function HomePage() {
       <JourneyStepper currentStep={currentStep} />
 
       {/* Main Results Container */}
-      <main className="main-content-container">
+      <main className="main-content-container" ref={resultsSectionRef} id="results-section">
         {/* Results Metadata & Sort Controls */}
         <div className="results-meta-header">
           <div className="results-title-group">
@@ -479,6 +510,7 @@ export default function HomePage() {
               onChange={(e) => {
                 setSortBy(e.target.value);
                 fetchBuses(fromQuery, toQuery, journeyDate, selectedTypes, selectedAmenities, maxPrice, e.target.value);
+                scrollToResults();
               }}
             >
               <option value="featured">Recommended Fleet</option>
@@ -516,20 +548,30 @@ export default function HomePage() {
                   textAlign: 'center',
                 }}
               >
-                <div style={{ width: 180, height: 90, margin: '0 auto 1.5rem' }}>
+                <div style={{ width: 220, height: 110, margin: '0 auto 1.2rem' }}>
                   <Image
                     src="/assets/animations/loading/bus-driving.svg"
                     alt="Searching Buses"
-                    width={180}
-                    height={90}
+                    width={220}
+                    height={110}
+                    priority
                     style={{ width: '100%', height: 'auto' }}
                   />
                 </div>
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.4rem' }}>
+                <div style={{ margin: '0 auto 1.2rem', width: 120, height: 24 }}>
+                  <Image
+                    src="/assets/animations/loading/route-dots.svg"
+                    alt="Connecting Routes"
+                    width={120}
+                    height={24}
+                    style={{ width: '100%', height: 'auto' }}
+                  />
+                </div>
+                <h3 style={{ fontSize: '1.3rem', marginBottom: '0.4rem', fontWeight: 800 }}>
                   Locating verified buses...
                 </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  Checking seat availability and schedules for {fromQuery} to {toQuery}
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                  Checking real-time seat availability and schedules for {fromQuery || 'Origin'} to {toQuery || 'Destination'} (3s)
                 </p>
               </div>
             ) : buses.length === 0 ? (
@@ -571,7 +613,13 @@ export default function HomePage() {
                     onToggleDrawer={(id) => {
                       const next = activeDrawerBusId === id ? null : id;
                       setActiveDrawerBusId(next);
-                      if (next) setCurrentStep(3);
+                      if (next) {
+                        setCurrentStep(3);
+                        setTimeout(() => {
+                          const cardEl = document.getElementById(`bus-card-${id}`);
+                          cardEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 120);
+                      }
                     }}
                     onProceedToBooking={handleProceedToBooking}
                     onOpenRouteMap={(b) => setRouteMapBus(b)}

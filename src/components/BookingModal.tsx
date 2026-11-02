@@ -78,16 +78,45 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         style={{ maxWidth: 540 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="modal-close-trigger" onClick={onClose} aria-label="Close">
+        <button className="modal-close-trigger" onClick={onClose} aria-label="Close" disabled={isSubmitting}>
           <X size={18} />
         </button>
 
-        <h2 style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>
-          Complete Passenger Details
-        </h2>
-        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.4rem' }}>
-          Your digital ticket and live tracking link will be sent to these details.
-        </p>
+        {isSubmitting ? (
+          <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+            <div style={{ width: 84, height: 84, margin: '0 auto 1.4rem' }}>
+              <Image
+                src="/assets/animations/loading/wheel-spinner.svg"
+                alt="Processing Reservation"
+                width={84}
+                height={84}
+                style={{ width: '100%', height: 'auto' }}
+              />
+            </div>
+            <div style={{ width: 140, height: 28, margin: '0 auto 1.2rem' }}>
+              <Image
+                src="/assets/animations/loading/route-dots.svg"
+                alt="Verifying Seat"
+                width={140}
+                height={28}
+                style={{ width: '100%', height: 'auto' }}
+              />
+            </div>
+            <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.4rem', color: 'var(--text-main)' }}>
+              Securing Seat #{seatNumber}...
+            </h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: 380, margin: '0 auto' }}>
+              Communicating with {bus.name} operator network and allocating your confirmed digital pass. Please wait 3 seconds while your ticket is registered.
+            </p>
+          </div>
+        ) : (
+          <>
+            <h2 style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>
+              Complete Passenger Details
+            </h2>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.4rem' }}>
+              Your digital ticket and live tracking link will be sent to these details.
+            </p>
 
         {/* Journey Summary Box */}
         <div
@@ -278,6 +307,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             )}
           </button>
         </form>
+          </>
+        )}
       </div>
     </div>
   );

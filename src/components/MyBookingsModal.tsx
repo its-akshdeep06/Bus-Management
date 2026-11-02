@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { Booking } from '@/types';
 import { Ticket, X, Share2, Trash2, Calendar, MapPin } from 'lucide-react';
@@ -20,7 +20,21 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
   onCancelBooking,
   onShareBooking,
 }) => {
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
   if (!isOpen) return null;
+
+  const handleCancelClick = async (bookingId: string) => {
+    setCancellingId(bookingId);
+    try {
+      // Smoothly scroll to the item being cancelled
+      const itemEl = document.getElementById(`booking-item-${bookingId}`);
+      itemEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      await onCancelBooking(bookingId);
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   return (
     <div className="modal-backdrop-blur" onClick={onClose}>
@@ -29,7 +43,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
         style={{ maxWidth: 680 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="modal-close-trigger" onClick={onClose} aria-label="Close">
+        <button className="modal-close-trigger" onClick={onClose} aria-label="Close" disabled={!!cancellingId}>
           <X size={18} />
         </button>
 
@@ -59,90 +73,124 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
             {bookings.map((b) => (
               <div
                 key={b.bookingId}
+                id={`booking-item-${b.bookingId}`}
                 style={{
                   background: 'var(--bg-main)',
                   border: '1.5px solid var(--border-light)',
                   borderRadius: 'var(--radius-md)',
                   padding: '1.2rem',
                   opacity: b.status === 'Cancelled' ? 0.6 : 1,
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.6rem' }}>
-                  <div>
-                    <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)' }}>
-                      {b.operator}
-                    </span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block' }}>
-                      {b.busType}
-                    </span>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span
-                      style={{
-                        background: b.status === 'Cancelled' ? '#f5f5f5' : '#ffebee',
-                        color: b.status === 'Cancelled' ? '#999' : 'var(--primary)',
-                        padding: '3px 8px',
-                        borderRadius: 4,
-                        fontSize: '0.82rem',
-                        fontWeight: 800,
-                      }}
-                    >
-                      PNR: {b.bookingId}
-                    </span>
-                    {b.status === 'Cancelled' && (
-                      <span style={{ fontSize: '0.75rem', color: 'var(--alert)', fontWeight: 700 }}>
-                        (Cancelled)
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem', marginBottom: '0.8rem' }}>
-                  <div>
-                    <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>{b.route}</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                      Date: {b.journeyDate} • Departs: {b.departureTime} • Seat {b.seat}
+                {cancellingId === b.bookingId ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '1.5rem',
+                      textAlign: 'center',
+                    }}
+                  >
+                    <div style={{ width: 48, height: 48, marginBottom: '0.8rem' }}>
+                      <Image
+                        src="/assets/animations/loading/wheel-spinner.svg"
+                        alt="Releasing Seat"
+                        width={48}
+                        height={48}
+                        style={{ width: '100%', height: 'auto' }}
+                      />
+                    </div>
+                    <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--alert)', marginBottom: '0.2rem' }}>
+                      Releasing Seat {b.seat} back to inventory...
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      Notifying {b.operator} network and updating PNR status.
                     </div>
                   </div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                    ₹{b.fareBreakdown?.total || 0}
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.6rem' }}>
+                      <div>
+                        <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)' }}>
+                          {b.operator}
+                        </span>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block' }}>
+                          {b.busType}
+                        </span>
+                      </div>
 
-                {b.status !== 'Cancelled' && (
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', borderTop: '1px dashed var(--border-light)', paddingTop: '0.6rem' }}>
-                    <button
-                      type="button"
-                      className="btn-ghost"
-                      style={{ padding: '0.3rem 0.7rem', fontSize: '0.78rem' }}
-                      onClick={() => onShareBooking(b)}
-                    >
-                      <Share2 size={13} />
-                      <span>Share</span>
-                    </button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span
+                          style={{
+                            background: b.status === 'Cancelled' ? '#f5f5f5' : '#ffebee',
+                            color: b.status === 'Cancelled' ? '#999' : 'var(--primary)',
+                            padding: '3px 8px',
+                            borderRadius: 4,
+                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                          }}
+                        >
+                          PNR: {b.bookingId}
+                        </span>
+                        {b.status === 'Cancelled' && (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--alert)', fontWeight: 700 }}>
+                            (Cancelled)
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => onCancelBooking(b.bookingId)}
-                      style={{
-                        background: 'transparent',
-                        border: '1px solid var(--border-light)',
-                        color: 'var(--alert)',
-                        padding: '0.3rem 0.7rem',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: '0.78rem',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.3rem',
-                      }}
-                    >
-                      <Trash2 size={13} />
-                      <span>Cancel Ticket</span>
-                    </button>
-                  </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem', marginBottom: '0.8rem' }}>
+                      <div>
+                        <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>{b.route}</div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                          Date: {b.journeyDate} • Departs: {b.departureTime} • Seat {b.seat}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                        ₹{b.fareBreakdown?.total || 0}
+                      </div>
+                    </div>
+
+                    {b.status !== 'Cancelled' && (
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', borderTop: '1px dashed var(--border-light)', paddingTop: '0.6rem' }}>
+                        <button
+                          type="button"
+                          className="btn-ghost"
+                          style={{ padding: '0.3rem 0.7rem', fontSize: '0.78rem' }}
+                          onClick={() => onShareBooking(b)}
+                        >
+                          <Share2 size={13} />
+                          <span>Share</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleCancelClick(b.bookingId)}
+                          style={{
+                            background: 'transparent',
+                            border: '1px solid var(--border-light)',
+                            color: 'var(--alert)',
+                            padding: '0.3rem 0.7rem',
+                            borderRadius: 'var(--radius-sm)',
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                          }}
+                        >
+                          <Trash2 size={13} />
+                          <span>Cancel Ticket</span>
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ))}

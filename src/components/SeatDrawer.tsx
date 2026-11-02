@@ -37,6 +37,7 @@ export const SeatDrawer: React.FC<SeatDrawerProps> = ({
   const [promoInput, setPromoInput] = useState('');
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
   const [promoError, setPromoError] = useState('');
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
 
   const totalSeats = bus.total_seats || 36;
   const bookedSet = useMemo(() => new Set(bus.bookedSeats || []), [bus.bookedSeats]);
@@ -46,10 +47,14 @@ export const SeatDrawer: React.FC<SeatDrawerProps> = ({
     setSelectedSeat(seatNum === selectedSeat ? null : seatNum);
   };
 
-  const handleApplyPromo = () => {
+  const handleApplyPromo = async () => {
     setPromoError('');
     const code = promoInput.trim().toUpperCase();
     if (!code) return;
+
+    setIsApplyingPromo(true);
+    await new Promise((r) => setTimeout(r, 1200));
+    setIsApplyingPromo(false);
 
     const matched = promoCodes.find((p) => p.code === code);
     if (!matched) {
@@ -305,9 +310,22 @@ export const SeatDrawer: React.FC<SeatDrawerProps> = ({
                   type="button"
                   className="btn-primary"
                   onClick={handleApplyPromo}
-                  style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}
+                  disabled={isApplyingPromo}
+                  style={{ fontSize: '0.8rem', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                 >
-                  Apply
+                  {isApplyingPromo ? (
+                    <>
+                      <Image
+                        src="/assets/animations/loading/wheel-spinner-light.svg"
+                        alt="Checking"
+                        width={14}
+                        height={14}
+                      />
+                      <span>Checking...</span>
+                    </>
+                  ) : (
+                    'Apply'
+                  )}
                 </button>
               )}
             </div>
