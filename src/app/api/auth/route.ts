@@ -4,7 +4,7 @@ import { userStore } from '@/lib/data';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { action, username, password, name, phone } = body;
+    const { action, username, password, name } = body;
 
     if (!username || !password) {
       return NextResponse.json(

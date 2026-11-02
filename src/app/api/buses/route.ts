@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     const selectedAmenities = amenityParam.split(',').map((a) => a.trim()).filter(Boolean);
     if (selectedAmenities.length > 0) {
       results = results.filter((b) =>
-        selectedAmenities.every((amenity) => b.amenities.includes(amenity as any))
+        selectedAmenities.every((amenity) => new Set<string>(b.amenities).has(amenity))
       );
     }
   }

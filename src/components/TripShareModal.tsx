@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Bus, Booking } from '@/types';
-import { Share2, Copy, Check, X, QrCode } from 'lucide-react';
+import { Share2, Copy, Check, X } from 'lucide-react';
 
 interface TripShareModalProps {
   isOpen: boolean;

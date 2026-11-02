@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Bus } from '@/types';
-import { Check, X, Star, Scale } from 'lucide-react';
+import { X, Star, Scale } from 'lucide-react';
 
 interface BusComparisonModalProps {
   isOpen: boolean;

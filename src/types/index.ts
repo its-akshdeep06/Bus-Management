@@ -62,13 +62,6 @@ export interface Booking {
   status: 'Confirmed' | 'Cancelled';
 }
 
-export interface User {
-  username: string;
-  name?: string;
-  phone?: string;
-  email?: string;
-}
-
 export interface NotificationItem {
   id: string;
   message: string;
@@ -82,10 +75,4 @@ export interface PromoCode {
   discountType: 'percentage' | 'flat';
   value: number;
   minBookingValue: number;
-}
-
-export interface SearchQuery {
-  from: string;
-  to: string;
-  date: string;
 }

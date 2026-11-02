@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Bus } from '@/types';
-import { Map, X, MapPin, Navigation, Clock } from 'lucide-react';
+import { Map, X } from 'lucide-react';
 
 interface RouteMapModalProps {
   isOpen: boolean;

@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
-import { Armchair, Sparkles, Check, MapPin, Tag } from 'lucide-react';
-import { Bus, StopPoint, PromoCode, FareBreakdown } from '@/types';
+import { Check, Tag } from 'lucide-react';
+import { Bus, PromoCode, FareBreakdown } from '@/types';
 import { promoCodes } from '@/lib/data';
 
 interface SeatDrawerProps {

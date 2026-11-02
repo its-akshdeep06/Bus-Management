@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Booking } from '@/types';
-import { Ticket, X, Share2, Trash2, Calendar, MapPin } from 'lucide-react';
+import { Ticket, X, Share2, Trash2 } from 'lucide-react';
 
 interface MyBookingsModalProps {
   isOpen: boolean;

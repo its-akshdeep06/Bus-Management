@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { ArrowLeftRight, MapPin, Calendar, Search, Sparkles, Navigation } from 'lucide-react';
 
@@ -80,7 +80,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         <Image src="/assets/illustrations/doodles/compass.svg" alt="Compass" width={65} height={65} />
       </div>
       <div className="doodle-float" style={{ bottom: '15%', right: '9%', width: 95, height: 95 }}>
-        <Image src="/assets/illustrations/doodles/mountains.svg" alt="Mountains" width={95} height={95} />
+        <Image src="/assets/illustrations/doodles/mountain.svg" alt="Mountains" width={95} height={95} />
       </div>
 
       <div className="hero-inner">

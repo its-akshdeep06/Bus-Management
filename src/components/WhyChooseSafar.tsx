@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { ShieldCheck, Clock, Award, Headphones } from 'lucide-react';
 
 const REASONS = [
   {

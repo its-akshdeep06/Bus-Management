@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { SlidersHorizontal, RotateCcw, Sparkles, ShieldCheck } from 'lucide-react';
+import { SlidersHorizontal, RotateCcw, ShieldCheck } from 'lucide-react';
 import { BusType, Amenity } from '@/types';
 
 interface FilterSidebarProps {

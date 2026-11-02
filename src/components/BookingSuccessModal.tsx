@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Booking } from '@/types';
-import { CheckCircle, Share2, Ticket, X, Download, Navigation } from 'lucide-react';
+import { Share2, Ticket, X, Download } from 'lucide-react';
 
 interface BookingSuccessModalProps {
   isOpen: boolean;

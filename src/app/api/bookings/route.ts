@@ -12,11 +12,14 @@ export async function GET(request: Request) {
     if (!booking) {
       return NextResponse.json({ status: 'error', message: 'Booking not found.' }, { status: 404 });
     }
+    if (!username || booking.username.toLowerCase() !== username.trim().toLowerCase()) {
+      return NextResponse.json({ status: 'error', message: 'Booking not found.' }, { status: 404 });
+    }
     return NextResponse.json({ status: 'success', booking });
   }
 
   if (!username) {
-    return NextResponse.json({ status: 'success', bookings: bookingStore });
+    return NextResponse.json({ status: 'error', message: 'Username is required.' }, { status: 400 });
   }
 
   const userBookings = bookingStore.filter((b) => b.username === username);
@@ -46,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     const seatNum = Number(seatNumber);
-    if (isNaN(seatNum) || seatNum < 1 || seatNum > bus.total_seats) {
+    if (!Number.isInteger(seatNum) || seatNum < 1 || seatNum > bus.total_seats) {
       return NextResponse.json({ status: 'error', message: 'Invalid seat number selected.' }, { status: 400 });
     }
 
@@ -129,16 +132,27 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const bookingId = searchParams.get('bookingId');
+    const username = searchParams.get('username');
     if (!bookingId) {
       return NextResponse.json({ status: 'error', message: 'Booking ID required.' }, { status: 400 });
     }
+    if (!username) {
+      return NextResponse.json({ status: 'error', message: 'Username is required.' }, { status: 400 });
+    }
 
-    const bookingIndex = bookingStore.findIndex((b) => b.bookingId === bookingId);
+    const bookingIndex = bookingStore.findIndex(
+      (b) =>
+        b.bookingId.toLowerCase() === bookingId.toLowerCase() &&
+        b.username.toLowerCase() === username.trim().toLowerCase()
+    );
     if (bookingIndex === -1) {
       return NextResponse.json({ status: 'error', message: 'Booking not found.' }, { status: 404 });
     }
 
     const booking = bookingStore[bookingIndex];
+    if (booking.status === 'Cancelled') {
+      return NextResponse.json({ status: 'error', message: 'Booking is already cancelled.' }, { status: 409 });
+    }
     booking.status = 'Cancelled';
 
     // Free up seat in bus

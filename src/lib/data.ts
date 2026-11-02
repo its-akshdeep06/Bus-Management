@@ -510,9 +510,7 @@ export const initialBuses: Bus[] = [
   },
 ];
 
-export const initialUsers: Record<string, string> = {};
-
 // In-memory persistent stores for API routes
 export const busStore: Bus[] = JSON.parse(JSON.stringify(initialBuses));
-export const userStore: Record<string, string> = { ...initialUsers };
+export const userStore: Record<string, string> = {};
 export const bookingStore: Booking[] = [];

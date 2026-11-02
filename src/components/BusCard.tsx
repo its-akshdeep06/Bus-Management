@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Star, Wifi, BatteryCharging, Shield, Clock, Map, Share2, Scale, Heart } from 'lucide-react';
+import { Star, Wifi, BatteryCharging, Map, Share2, Heart } from 'lucide-react';
 import { Bus, PromoCode, FareBreakdown } from '@/types';
 import { SeatDrawer } from './SeatDrawer';
 

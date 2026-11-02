@@ -19,7 +19,7 @@ import { MyBookingsModal } from '@/components/MyBookingsModal';
 import { AuthModal } from '@/components/AuthModal';
 import { Toast } from '@/components/Toast';
 import { Footer } from '@/components/Footer';
-import { ArrowUpDown, Scale, Sparkles, AlertCircle } from 'lucide-react';
+import { Scale } from 'lucide-react';
 
 export default function HomePage() {
   // Theme (Light / Dark)
@@ -144,8 +144,6 @@ export default function HomePage() {
   // Boundary Bounce Effect (Section 6.3)
   const bounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
-    let lastScrollY = window.scrollY;
-
     const handleWheel = (e: WheelEvent) => {
       const scrollHeight = document.documentElement.scrollHeight;
       const clientHeight = document.documentElement.clientHeight;
@@ -414,9 +412,12 @@ export default function HomePage() {
       // 3-second delay so the seat-release animation is clearly seen
       const delayPromise = new Promise((resolve) => setTimeout(resolve, 3000));
       const [res] = await Promise.all([
-        fetch(`/api/bookings?bookingId=${encodeURIComponent(bookingId)}`, {
+        fetch(
+          `/api/bookings?bookingId=${encodeURIComponent(bookingId)}&username=${encodeURIComponent(currentUser || '')}`,
+          {
           method: 'DELETE',
-        }),
+          }
+        ),
         delayPromise,
       ]);
       const data = await res.json();

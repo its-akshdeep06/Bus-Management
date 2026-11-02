@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, Lock, Phone, X, LogIn, UserPlus } from 'lucide-react';
+import { Phone, X, LogIn, UserPlus } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;

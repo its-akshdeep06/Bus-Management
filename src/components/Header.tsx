@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Ticket, User, LogOut, Sun, Moon, Heart } from 'lucide-react';
+import { Ticket, User, LogOut, Sun, Moon } from 'lucide-react';
 
 interface HeaderProps {
   currentUser: string | null;
@@ -12,7 +12,6 @@ interface HeaderProps {
   onLogout: () => void;
   onOpenMyBookings: () => void;
   bookingCount?: number;
-  onOpenFavorites?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -23,7 +22,6 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   onOpenMyBookings,
   bookingCount = 0,
-  onOpenFavorites,
 }) => {
   return (
     <header className="safar-header">

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Send, Check, ShieldCheck } from 'lucide-react';
+import { Send, ShieldCheck } from 'lucide-react';
 
 interface FooterProps {
   onSelectRoute: (from: string, to: string) => void;
