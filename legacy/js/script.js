@@ -1,7 +1,7 @@
 let isLoggedIn = false;
 let currentUser = '';
 let isLoginMode = true;
-const API_URL = '/cgi-bin/api.cgi';
+const API_URL = '/api/buses';
 let allBuses = []; // Cash all buses for filtering
 
 document.addEventListener('DOMContentLoaded', () => {

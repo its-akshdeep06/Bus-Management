@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { User, Lock, Phone, X, LogIn, UserPlus } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -20,13 +21,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !password) return;
+    if (!username.trim() || !password) return;
+
+    if (!isLoginMode && password !== confirmPassword) {
+      onError('Passwords do not match. Please re-enter.');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -35,22 +43,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: isLoginMode ? 'login' : 'register',
-          username,
+          username: username.trim(),
           password,
+          name: fullName.trim(),
         }),
       });
       const data = await res.json();
 
       if (data.status === 'success') {
         onSuccess(data.message);
-        if (isLoginMode) {
-          onLoginSuccess(data.username || username);
-          onClose();
-          setUsername('');
-          setPassword('');
-        } else {
-          setIsLoginMode(true);
-        }
+        onLoginSuccess(data.username || username.trim());
+        onClose();
+        setUsername('');
+        setPassword('');
+        setConfirmPassword('');
+        setFullName('');
       } else {
         onError(data.message || 'Authentication failed');
       }
@@ -62,54 +69,192 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose} aria-label="Close">
-          &times;
+    <div className="modal-backdrop-blur" onClick={onClose}>
+      <div
+        className="safar-modal-card"
+        style={{ maxWidth: 440 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className="modal-close-trigger" onClick={onClose} aria-label="Close">
+          <X size={18} />
         </button>
-        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-          {isLoginMode ? 'Sign in to Safar' : 'Create an Account'}
-        </h2>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Phone Number / Username"
-            required
-            className="input-field"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            className="input-field"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="btn-primary btn-full"
-            disabled={loading}
-          >
-            {loading ? 'Please wait...' : isLoginMode ? 'Sign In' : 'Register'}
-          </button>
-        </form>
-
-        <p className="toggle-auth">
-          <span>
-            {isLoginMode
-              ? "Don't have an account?"
-              : 'Already have an account?'}
-          </span>
+        {/* Tab Toggle */}
+        <div
+          style={{
+            display: 'flex',
+            background: 'var(--warm-ivory)',
+            borderRadius: 'var(--radius-md)',
+            padding: '4px',
+            marginBottom: '1.5rem',
+          }}
+        >
           <button
             type="button"
-            onClick={() => setIsLoginMode(!isLoginMode)}
+            onClick={() => setIsLoginMode(true)}
+            style={{
+              flex: 1,
+              padding: '0.6rem',
+              borderRadius: 'var(--radius-sm)',
+              border: 'none',
+              background: isLoginMode ? 'var(--bg-surface)' : 'transparent',
+              color: isLoginMode ? 'var(--primary)' : 'var(--text-muted)',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              boxShadow: isLoginMode ? 'var(--shadow-sm)' : 'none',
+              transition: 'all 0.2s ease',
+            }}
           >
-            {isLoginMode ? 'Register' : 'Sign in'}
+            Sign In
           </button>
+          <button
+            type="button"
+            onClick={() => setIsLoginMode(false)}
+            style={{
+              flex: 1,
+              padding: '0.6rem',
+              borderRadius: 'var(--radius-sm)',
+              border: 'none',
+              background: !isLoginMode ? 'var(--bg-surface)' : 'transparent',
+              color: !isLoginMode ? 'var(--primary)' : 'var(--text-muted)',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              boxShadow: !isLoginMode ? 'var(--shadow-sm)' : 'none',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            Register
+          </button>
+        </div>
+
+        <h2 style={{ fontSize: '1.4rem', marginBottom: '0.3rem' }}>
+          {isLoginMode ? 'Welcome back to Safar' : 'Create your Safar Account'}
+        </h2>
+        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.4rem' }}>
+          {isLoginMode
+            ? 'Sign in to access your bookings and express checkout.'
+            : 'Join India’s premium bus network for easy booking and live alerts.'}
         </p>
+
+        <form onSubmit={handleSubmit}>
+          {!isLoginMode && (
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>
+                Your Name
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Rahul Verma"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.7rem 0.8rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-light)',
+                  background: 'var(--bg-main)',
+                  fontFamily: 'var(--font-ui)',
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                }}
+              />
+            </div>
+          )}
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>
+              Phone Number or Username *
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. 9876543210 or traveluser"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.7rem 0.8rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-light)',
+                background: 'var(--bg-main)',
+                fontFamily: 'var(--font-ui)',
+                fontSize: '0.95rem',
+                outline: 'none',
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>
+              Password *
+            </label>
+            <input
+              type="password"
+              required
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.7rem 0.8rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-light)',
+                background: 'var(--bg-main)',
+                fontFamily: 'var(--font-ui)',
+                fontSize: '0.95rem',
+                outline: 'none',
+              }}
+            />
+          </div>
+
+          {!isLoginMode && (
+            <div style={{ marginBottom: '1.2rem' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>
+                Confirm Password *
+              </label>
+              <input
+                type="password"
+                required
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.7rem 0.8rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-light)',
+                  background: 'var(--bg-main)',
+                  fontFamily: 'var(--font-ui)',
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                }}
+              />
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={loading}
+            style={{ width: '100%', padding: '0.85rem', marginTop: '0.5rem' }}
+          >
+            {loading ? (
+              <span>Please wait...</span>
+            ) : isLoginMode ? (
+              <>
+                <LogIn size={18} />
+                <span>Sign In to Safar</span>
+              </>
+            ) : (
+              <>
+                <UserPlus size={18} />
+                <span>Create Account</span>
+              </>
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );

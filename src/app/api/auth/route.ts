@@ -4,29 +4,30 @@ import { userStore } from '@/lib/data';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { action, username, password } = body;
+    const { action, username, password, name, phone } = body;
 
     if (!username || !password) {
       return NextResponse.json(
-        { status: 'error', message: 'Username and password are required.' },
+        { status: 'error', message: 'Username/phone and password are required.' },
         { status: 400 }
       );
     }
 
-    const cleanUsername = username.trim();
+    const cleanUsername = username.trim().toLowerCase();
 
     if (action === 'register') {
       if (userStore[cleanUsername]) {
         return NextResponse.json(
-          { status: 'error', message: 'Username already exists! Please log in.' },
+          { status: 'error', message: 'Account already exists! Please sign in.' },
           { status: 409 }
         );
       }
       userStore[cleanUsername] = password;
       return NextResponse.json({
         status: 'success',
-        message: 'Account registered successfully! You can now log in.',
-        username: cleanUsername
+        message: 'Account registered successfully! Welcome to Safar.',
+        username: cleanUsername,
+        name: name || cleanUsername,
       });
     }
 
@@ -34,20 +35,16 @@ export async function POST(request: Request) {
     if (userStore[cleanUsername] && userStore[cleanUsername] === password) {
       return NextResponse.json({
         status: 'success',
-        message: 'Login successful!',
-        username: cleanUsername
+        message: 'Signed in successfully!',
+        username: cleanUsername,
       });
     }
 
     return NextResponse.json(
-      { status: 'error', message: 'Invalid username or password.' },
+      { status: 'error', message: 'Invalid credentials. If you are new, please register first.' },
       { status: 401 }
     );
   } catch {
-    return NextResponse.json(
-      { status: 'error', message: 'Invalid request body.' },
-      { status: 400 }
-    );
+    return NextResponse.json({ status: 'error', message: 'Invalid request body.' }, { status: 400 });
   }
 }
-
