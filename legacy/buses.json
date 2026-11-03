@@ -1,0 +1,5 @@
+[
+  {"id":1,"name":"Delhi Express","route":"Delhi to Jaipur","fare":800,"availableSeats":36},
+  {"id":2,"name":"Mumbai Cruiser","route":"Mumbai to Pune","fare":450,"availableSeats":40},
+  {"id":3,"name":"Bangalore Star","route":"Bangalore to Chennai","fare":750,"availableSeats":40}
+]
