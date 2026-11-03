@@ -273,6 +273,104 @@ h1, h2, h3, h4, h5, h6 {
   transition: all 0.2s ease;
 }
 
+/* Not found page */
+.not-found-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 85% 15%, var(--primary-subtle), transparent 30rem),
+    var(--bg-main);
+}
+
+.not-found-header {
+  padding: 1.15rem 5%;
+  border-bottom: 1px solid var(--border-light);
+  background: color-mix(in srgb, var(--bg-surface) 88%, transparent);
+}
+
+.not-found-header .brand-wrapper {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.not-found-content {
+  max-width: 1080px;
+  min-height: calc(100vh - 89px);
+  margin: 0 auto;
+  padding: 5rem 5%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 3rem;
+}
+
+.not-found-copy {
+  max-width: 520px;
+}
+
+.not-found-kicker {
+  margin-bottom: 0.75rem;
+  color: var(--primary);
+  font-family: var(--font-hand);
+  font-size: 1.6rem;
+}
+
+.not-found-copy h1 {
+  margin-bottom: 1.25rem;
+  font-size: clamp(2.4rem, 5vw, 4.5rem);
+  letter-spacing: -1.5px;
+}
+
+.not-found-copy > p:not(.not-found-kicker) {
+  max-width: 450px;
+  color: var(--text-muted);
+  font-size: 1.08rem;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+
+.not-found-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.4rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.not-found-back:hover {
+  color: var(--primary);
+}
+
+.not-found-illustration {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.not-found-illustration img {
+  width: min(100%, 320px);
+  height: auto;
+}
+
+.not-found-number {
+  position: absolute;
+  top: -1rem;
+  right: 7%;
+  color: var(--primary);
+  font-family: var(--font-ui);
+  font-size: clamp(4rem, 10vw, 7rem);
+  font-weight: 800;
+  line-height: 1;
+  opacity: 0.12;
+}
+
 .btn-ghost:hover {
   background: var(--warm-ivory);
   border-color: var(--text-muted);
@@ -1160,6 +1258,36 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 640px) {
+  .not-found-content {
+    min-height: calc(100vh - 85px);
+    padding: 3rem 7%;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .not-found-copy {
+    margin: 0 auto;
+  }
+
+  .not-found-actions {
+    justify-content: center;
+  }
+
+  .not-found-back {
+    margin-top: 1.1rem;
+  }
+
+  .not-found-illustration {
+    order: -1;
+    padding: 0;
+  }
+
+  .not-found-number {
+    top: -1.5rem;
+    right: 5%;
+  }
+
   .footer-inner-grid {
     grid-template-columns: 1fr;
   }
